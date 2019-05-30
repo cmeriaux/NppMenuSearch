@@ -40,10 +40,6 @@ after_build:
             Push-AppveyorArtifact $ZipFileName -DeploymentName releases
         }
 
-artifacts:
-  - path: "*/*/*/*/NppMenuSearch_*.zip"
-    name: releases
-
 deploy:
     provider: GitHub
     auth_token:
