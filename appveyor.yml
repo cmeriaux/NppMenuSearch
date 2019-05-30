@@ -30,32 +30,24 @@ build_script:
     - msbuild NppMenuSearch.sln /m /p:configuration="%configuration%" /p:platform="%platform%" /p:PlatformToolset="%PlatformToolset%" /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 after_build:
-    - cd "%APPVEYOR_BUILD_FOLDER%"\NppMenuSearch
+    - cd "%APPVEYOR_BUILD_FOLDER%"\NppMenuSearch\bin\
     - ps: >-
-
+        Set-Location -Path $env:PLATFORM\$env:CONFIGURATION
+        
         if ($env:CONFIGURATION -eq "Release") {
-            Push-AppveyorArtifact "bin\$env:PLATFORM\$env:CONFIGURATION\NppMenuSearch.dll" -FileName NppMenuSearch.dll
-        }
-
-        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "Release" -and $env:PLATFORMTOOLSET -eq "v140_xp") {
-            if($env:PLATFORM -eq "x64"){
-            $ZipFileName = "NppMenuSearch_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
-            7z a $ZipFileName bin\$env:PLATFORM\$env:CONFIGURATION\NppMenuSearch.dll
-            }
-            if($env:PLATFORM -eq "x86"){
-            $ZipFileName = "NppMenuSearch_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
-            7z a $ZipFileName bin\$env:PLATFORM\$env:CONFIGURATION\NppMenuSearch.dll
-            }
+            $ZipFileName = "NppMenuSearch_$($env:APPVEYOR_REPO_TAG_NAME)_$($env:PLATFORM).zip"
+            7z a $ZipFileName NppMenuSearch.dll
+            Push-AppveyorArtifact $ZipFileName -DeploymentName releases
         }
 
 artifacts:
-  - path: NppMenuSearch_*.zip
+  - path: "*/*/*/*/NppMenuSearch_*.zip"
     name: releases
 
 deploy:
     provider: GitHub
     auth_token:
-        secure: !!TODO, see https://www.appveyor.com/docs/deployment/github/#provider-settings!!
+        secure: i7NPJkceDL6AEsutHPmbQIUMwAHptcW5b6AEYV7NpILvPhg0mBDApZgqTFhKv73G
     artifact: releases
     draft: false
     prerelease: false
